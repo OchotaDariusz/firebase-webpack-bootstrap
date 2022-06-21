@@ -14,6 +14,20 @@
 
         <h2>Firebase Firestore</h2>
 
+        <form class="mt-5">
+            <label for="orderBy" class="form-label">Order By:</label>
+            <select id="orderBy">
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="createdAt">Date added</option>
+            </select>
+            <label for="orderDirection" class="form-label">Order Direction:</label>
+            <select id="orderDirection">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+        </form>
+
         <table class="table table-striped mt-5">
             <thead>
                 <tr>
