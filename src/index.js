@@ -2,8 +2,9 @@ import "./styles.scss";
 
 import { initializeApp } from 'firebase/app';
 import {
-    getFirestore, collection, onSnapshot,
-    addDoc, deleteDoc, doc
+    getFirestore, collection, onSnapshot, getDocs,
+    addDoc, deleteDoc, doc, query,
+    orderBy, serverTimestamp
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -22,9 +23,44 @@ const db = getFirestore();
 
 const colRef = collection(db, 'books');
 
+const resultsOrderBy = document.querySelector('#orderBy');
+const orderDirection = document.querySelector('#orderDirection');
+let order;
+let direction;
+let q;
+
+const queryResults = (order='title', direction='desc') => {
+    q = query(colRef, orderBy(order, direction));
+
+};
+
+resultsOrderBy.addEventListener('change', () => {
+    order = resultsOrderBy.value;
+    direction = orderDirection.value;
+    console.log(order, direction);
+    queryResults(order, direction);
+    getDocs(q)
+        .then(snapshot => {
+            updateDOM(snapshot);
+        })
+        .catch(err => console.log(err));
+});
+
+orderDirection.addEventListener('change', () => {
+    order = resultsOrderBy.value;
+    direction = orderDirection.value;
+    console.log(order, direction);
+    queryResults(order, direction);
+    getDocs(q)
+        .then(snapshot => {
+            updateDOM(snapshot);
+        })
+        .catch(err => console.log(err));
+});
+
 const tableBody = document.querySelector('#tableBody');
 
-onSnapshot(colRef, snapshot => {
+const updateDOM = snapshot => {
     let books = [];
     snapshot.docs.forEach(doc => {
         books.push({ ...doc.data(), id: doc.id });
@@ -39,7 +75,12 @@ onSnapshot(colRef, snapshot => {
                                 <td>${book.author}</td>
                             </tr>`;
     });
-})
+};
+
+queryResults();
+onSnapshot(q, snapshot => {
+    updateDOM(snapshot);
+});
 
 const addBookForm = document.querySelector('.form-add');
 addBookForm.addEventListener('submit', event => {
@@ -47,7 +88,8 @@ addBookForm.addEventListener('submit', event => {
 
     addDoc(colRef, {
         title: addBookForm.title.value,
-        author: addBookForm.author.value
+        author: addBookForm.author.value,
+        createdAt: serverTimestamp()
     })
         .then(() => {
             addBookForm.reset();
