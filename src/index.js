@@ -3,7 +3,7 @@ import "./styles.scss";
 import { initializeApp } from 'firebase/app';
 import {
     getFirestore, collection, onSnapshot, getDocs,
-    addDoc, deleteDoc, doc, query,
+    addDoc, deleteDoc, doc, query, updateDoc,
     orderBy, serverTimestamp
 } from 'firebase/firestore';
 
@@ -37,7 +37,6 @@ const queryResults = (order='title', direction='desc') => {
 resultsOrderBy.addEventListener('change', () => {
     order = resultsOrderBy.value;
     direction = orderDirection.value;
-    console.log(order, direction);
     queryResults(order, direction);
     getDocs(q)
         .then(snapshot => {
@@ -49,7 +48,6 @@ resultsOrderBy.addEventListener('change', () => {
 orderDirection.addEventListener('change', () => {
     order = resultsOrderBy.value;
     direction = orderDirection.value;
-    console.log(order, direction);
     queryResults(order, direction);
     getDocs(q)
         .then(snapshot => {
@@ -107,6 +105,22 @@ deleteBookForm.addEventListener('submit', event => {
     deleteDoc(docRef)
         .then(() => {
             deleteBookForm.reset();
+        })
+        .catch(err => console.log(err));
+
+});
+
+const updateBookForm = document.querySelector('.form-update');
+updateBookForm.addEventListener('submit', event => {
+    event.preventDefault();
+
+    const docRef = doc(db, 'books', updateBookForm.docid.value);
+    const title = updateBookForm.title.value;
+    const author = updateBookForm.author.value;
+
+    updateDoc(docRef, { title, author })
+        .then(() =>{
+            updateBookForm.reset();
         })
         .catch(err => console.log(err));
 
